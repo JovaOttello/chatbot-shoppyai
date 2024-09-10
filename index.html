@@ -1,0 +1,298 @@
+<index.html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShoppyAI - AI Chatbot</title>
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f0f8ff;
+        height: 100%;
+    }
+    .chat-container {
+        max-width: 400px;
+        margin: 20px auto;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: calc(100% - 40px);
+        background-color: white;
+    }
+    .chat-header {
+        background-color: #0066cc;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+    .chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 10px;
+    }
+    .message {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        border-radius: 20px;
+        max-width: 80%;
+    }
+    .bot-message {
+        background-color: #e6f2ff;
+        align-self: flex-start;
+    }
+    .user-message {
+        background-color: #0066cc;
+        color: white;
+        align-self: flex-end;
+        margin-left: auto;
+    }
+    .chat-input {
+        display: flex;
+        padding: 10px;
+        background-color: #f0f0f0;
+    }
+    #user-input {
+        flex-grow: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    #send-button {
+        background-color: #0066cc;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        margin-left: 5px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .options-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 10px;
+    }
+    .option-button {
+        background-color: #e6f2ff;
+        border: 1px solid #0066cc;
+        color: #0066cc;
+        padding: 5px 10px;
+        margin: 5px;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .option-button:hover {
+        background-color: #0066cc;
+        color: white;
+    }
+    .whatsapp-button {
+        background-color: #25D366;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 10px;
+    }
+    .loading-dots {
+        display: inline-block;
+    }
+    .loading-dots:after {
+        content: '';
+        animation: dots 1.5s steps(3, end) infinite;
+    }
+    @keyframes dots {
+        0%, 33% {
+            content: '.';
+        }
+        66% {
+            content: '..';
+        }
+        100% {
+            content: '...';
+        }
+    }
+</style>
+</head>
+<body>
+<div class="chat-container">
+    <div class="chat-header">ShoppyAI Assistant</div>
+    <div id="chat-messages" class="chat-messages"></div>
+    <div class="chat-input">
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button id="send-button">Send</button>
+    </div>
+    <a href="https://wa.me/44521256325" target="_blank" class="whatsapp-button">Chat with a Real Person on WhatsApp</a>
+</div>
+
+<script>
+const chatMessages = document.getElementById('chat-messages');
+const userInput = document.getElementById('user-input');
+const sendButton = document.getElementById('send-button');
+
+const botResponses = {
+    "open a store": "Opening a store with ShoppyAI is incredibly easy and fast! Just follow these steps:\n1. Click on the bar on the left side in the platform\n2. Click on 'My store/Add Store'\n3. In the popup window, scroll down and click on '+Add store'\nIn just 2 minutes, you'll have a fully functional online Dropshipping store ready to sell globally!",
+    "how to open an account": "Creating an account with ShoppyAI is simple:\n1. Click the 'Sign up' button in the top right corner\n2. Follow the quick registration process\nYou'll get a 7-day free trial to explore our platform. We're so confident you'll love it, we offer a money-back guarantee!",
+    "import products": "Importing products with ShoppyAI is a breeze:\n1. Click 'Marketplace' in the left menu\n2. Browse our curated selection of top-selling products\n3. Click 'Import' under any product you like\n4. Set your selling price, and it's instantly in your store!\nOur AI takes care of everything else, from inventory to shipping!",
+    "withdraw": "Withdrawing your earnings is effortless:\n1. Click your profile icon (top right)\n2. Go to 'Bank Details' and add your information\n3. Click 'Withdraw' at the top of the platform\n4. Enter the amount and it's done!\nOur automated system ensures quick and secure transfers.",
+    "help": "Expert help is always at your fingertips! Once you sign up, you're assigned a dedicated expert available via email, WhatsApp, or your preferred method. They're there to guide you every step of the way!",
+    "deposit funds": "Adding funds to your account is quick and secure:\n1. Visit http://shoppyai.online\n2. Choose your deposit amount\n3. Complete the transaction\nFunds are instantly added to your account, ready for you to scale your business!",
+    "see client orders": "Tracking orders is simple with our AI-powered dashboard:\n1. Click the left menu\n2. Select 'Orders'\nYou'll see real-time updates on all your sales, managed entirely by our AI system!",
+    "increase sales": "Boosting sales is automated with ShoppyAI:\n1. Go to 'Packages' in the left menu\n2. Choose 'Advertisement Packages'\n3. Select a package fitting your goals\nOur AI then optimizes your ads across multiple platforms for maximum reach and sales!",
+    "price to sell": "With ShoppyAI, you're in control of your profits:\n- You see the product cost upfront\n- Set your selling price for maximum profit\n- Our AI handles everything else!\nWe offer a wide range of high-demand products, from tech gadgets to trending items, all selected by our e-commerce experts.",
+    "start": "Starting your dropshipping journey is just a click away:\n1. Click 'Sign Up now'\n2. Invest as little as $100 to begin\n3. Our expert will personally guide you in setting up your global store\nWith ShoppyAI, you're never alone in your dropshipping journey!",
+    "default": "Welcome to ShoppyAI, where dropshipping becomes effortless! Our AI-powered platform automates everything:\n- Product selection\n- Store setup\n- Marketing and advertising\n- Order fulfillment and shipping\n- Customer service\nAll you need to do is choose your products and watch your business grow! How can I help you get started today?",
+    "hi": "Hello! Welcome to ShoppyAI, the best Dropshipping platform. We're doing everything for you! You just need to sign up, choose the products you like from our top-selling products selected by our experts, and then sit back and watch it work for you. Our AI system takes care of the rest. How can I assist you today?",
+    "hey": "Hey there! Welcome to ShoppyAI, where we make dropshipping a breeze. Our AI-powered platform handles everything from product selection to order fulfillment. Ready to start your dropshipping journey? How can I help you get started?",
+    "hello": "Hello and welcome to ShoppyAI! We're the ultimate Dropshipping platform that does everything for you. Just sign up, pick your favorite products from our expertly curated selection, and let our AI system handle the rest. What would you like to know about starting your automated dropshipping business?",
+    "are you legit": "Absolutely! ShoppyAI is fully legitimate and regulated by the FCA (Financial Conduct Authority) in London. We pride ourselves on our transparency, security, and commitment to helping entrepreneurs succeed in the dropshipping world. Is there anything specific you'd like to know about our credentials or services?",
+    "why automate dropshipping": "Automating dropshipping with ShoppyAI saves you time and effort. Our AI handles product sourcing, inventory management, order processing, and customer service, allowing you to focus on growing your business strategically.",
+    "ai-powered store setup": "Our AI-powered store setup is lightning fast. In just minutes, you'll have a professional-looking store with optimized product listings, pricing strategies, and even AI-generated product descriptions.",
+    "no inventory hassle": "With ShoppyAI, you never have to worry about inventory. Our AI manages stock levels in real-time, ensuring you never oversell. We handle storage, packing, and shipping, so you can run your business from anywhere.",
+    "global market reach": "ShoppyAI opens doors to global markets effortlessly. Our platform supports multiple languages and currencies, and our AI optimizes your store for international customers, helping you tap into a worldwide customer base.",
+    "expert support team": "Our expert support team is always ready to help. From technical issues to business strategy, our experienced professionals provide personalized guidance to ensure your success in the competitive dropshipping landscape.",
+    "ai marketing strategies": "ShoppyAI's AI marketing strategies are cutting-edge. Our system analyzes market trends, customer behavior, and competitive data to create and execute targeted marketing campaigns across various platforms, maximizing your ROI.",
+    "effortless product import": "Importing products with ShoppyAI is truly effortless. Our AI scans millions of products, selecting the most profitable ones for your niche. With one click, you can add these optimized listings to your store, complete with descriptions and competitive pricing.",
+    "automated order fulfillment": "Order fulfillment is fully automated with ShoppyAI. When a customer places an order, our AI immediately processes it, routes it to the most efficient supplier, and tracks the shipment. You and your customer receive real-time updates without any manual intervention.",
+    "real-time sales tracking": "Keep your finger on the pulse of your business with our real-time sales tracking. Our AI-powered dashboard provides instant insights into your sales, revenue, popular products, and customer behavior, helping you make data-driven decisions.",
+    "profit optimization": "ShoppyAI's AI constantly works on profit optimization. It adjusts pricing based on market demand, identifies cross-selling opportunities, and suggests high-margin products, ensuring you maximize your earnings with minimal effort.",
+    "start with low investment": "Starting with ShoppyAI requires minimal upfront investment. You can launch your dropshipping business with as little as $100, and our AI helps you reinvest profits strategically to grow your business organically.",
+    "passive income potential": "ShoppyAI turns dropshipping into a source of passive income. Once you've set up your store and selected your products, our AI handles day-to-day operations, allowing you to earn money 24/7, even while you sleep.",
+    "ai-driven analytics": "Our AI-driven analytics provide deep insights into your business performance. From customer segmentation to predictive trend analysis, these tools help you understand your market and make informed decisions to stay ahead of the competition.",
+    "scale your business easily": "Scaling your business is seamless with ShoppyAI. As your store grows, our AI automatically adjusts to handle increased traffic, sales, and customer service demands. You can expand your product range or enter new markets with just a few clicks.",
+    "access trending products": "Stay ahead of the curve with access to trending products. Our AI constantly scans the market to identify up-and-coming products with high profit potential, allowing you to be among the first to offer these hot items to your customers.",
+    "one-click store creation": "Creating your store is as easy as a single click with ShoppyAI. Our AI sets up your entire store structure, including product categories, payment gateways, and shipping options, all optimized for conversion and user experience.",
+    "ai customer service": "Let our AI handle customer service for you. It can respond to common queries, process returns and exchanges, and even provide personalized product recommendations, all in multiple languages and 24/7.",
+    "multi-platform selling": "Expand your reach with multi-platform selling. ShoppyAI can automatically list your products on various marketplaces and social media platforms, synchronizing inventory and orders across all channels for seamless management.",
+    "automated inventory management": "Say goodbye to stockouts and overselling. Our automated inventory management system tracks stock levels across all suppliers in real-time, automatically adjusting your store's availability to ensure a smooth customer experience.",
+    "hassle-free shipping": "Shipping is completely hassle-free with ShoppyAI. Our AI selects the most cost-effective and efficient shipping method for each order, handles customs documentation for international sales, and provides tracking information automatically.",
+    "ai vs traditional methods": "Compared to traditional methods, ShoppyAI's AI-driven approach offers unparalleled efficiency and scalability. While traditional dropshipping requires constant manual work, our AI automates nearly every aspect, allowing you to manage a thriving business with minimal time investment.",
+    "shoppyai success stories": "We have numerous success stories from entrepreneurs who have thrived using ShoppyAI. From stay-at-home parents making a full-time income to young entrepreneurs scaling to six-figure businesses, our platform has empowered people from all walks of life.",
+    "time-saving ai features": "ShoppyAI's time-saving AI features are game-changing. From automated product research and listing creation to AI-powered customer service and marketing, our platform saves you countless hours, allowing you to focus on strategy and growth.",
+    "low-risk business model": "Dropshipping with ShoppyAI offers a low-risk business model. With no need for upfront inventory investment and our AI minimizing operational risks, you can test different products and markets with minimal financial exposure.",
+    "ai-powered growth tools": "Our AI-powered growth tools give you a competitive edge. From personalized product recommendations for your customers to AI-optimized email marketing campaigns, these tools work tirelessly to increase your sales and customer loyalty."
+};
+
+const optionSets = [
+    [
+        'Why automate dropshipping?',
+        'AI-powered store setup',
+        'No inventory hassle',
+        'Global market reach',
+        'Expert support team'
+    ],
+    [
+        'AI marketing strategies',
+        'Effortless product import',
+        'Automated order fulfillment',
+        'Real-time sales tracking',
+        'Profit optimization'
+    ],
+    [
+        'Start with low investment',
+        'Passive income potential',
+        'AI-driven analytics',
+        'Scale your business easily',
+        'Access trending products'
+    ],
+    [
+        'One-click store creation',
+        'AI customer service',
+        'Multi-platform selling',
+        'Automated inventory management',
+        'Hassle-free shipping'
+    ],
+    [
+        'AI vs traditional methods',
+        'ShoppyAI success stories',
+        'Time-saving AI features',
+        'Low-risk business model',
+        'AI-powered growth tools'
+    ]
+];
+
+function addMessage(message, isUser = false) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.classList.add(isUser ? 'user-message' : 'bot-message');
+    messageElement.textContent = message;
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function addOptions() {
+    const optionsContainer = document.createElement('div');
+    optionsContainer.classList.add('options-container');
+    const randomSet = optionSets[Math.floor(Math.random() * optionSets.length)];
+    randomSet.forEach(option => {
+        const button = document.createElement('button');
+        button.classList.add('option-button');
+        button.textContent = option;
+        button.onclick = () => handleUserInput(option);
+        optionsContainer.appendChild(button);
+    });
+    chatMessages.appendChild(optionsContainer);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function handleUserInput(input) {
+    addMessage(input, true);
+    
+    // Add loading animation
+    const loadingElement = document.createElement('div');
+    loadingElement.classList.add('message', 'bot-message', 'loading-dots');
+    chatMessages.appendChild(loadingElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    setTimeout(() => {
+        chatMessages.removeChild(loadingElement);
+        
+        let response = '';
+        const lowercaseInput = input.toLowerCase();
+        
+        if (botResponses[lowercaseInput]) {
+            response = botResponses[lowercaseInput];
+        } else {
+            const partialMatch = Object.keys(botResponses).find(key => lowercaseInput.includes(key.toLowerCase()));
+            response = partialMatch ? botResponses[partialMatch] : botResponses["default"];
+        }
+        
+        addMessage(response);
+        addOptions();
+    }, 1500);
+}
+
+sendButton.addEventListener('click', () => {
+    const userMessage = userInput.value.trim();
+    if (userMessage) {
+        handleUserInput(userMessage);
+        userInput.value = '';
+    }
+});
+
+userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        sendButton.click();
+    }
+});
+
+// Initial greeting
+addMessage("Hello! Welcome to ShoppyAI, where dropshipping meets cutting-edge AI technology. How can I assist you in starting your automated dropshipping journey today?");
+addOptions();
+
+const whatsappButton = document.querySelector('.whatsapp-button');
+whatsappButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    addMessage("You've chosen to chat with a real person on WhatsApp. Click the button again to open WhatsApp.");
+});
+</script>
+</body>
+</html>
